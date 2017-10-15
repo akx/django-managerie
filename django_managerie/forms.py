@@ -10,7 +10,7 @@ class ArgumentParserForm(forms.Form):
     IGNORED_DESTS = {
         'pythonpath',
         'settings',
-        #'no_color',  # TODO: Remove me
+        'no_color',
         'traceback',
     }
     def __init__(self, *, parser, **kwargs):

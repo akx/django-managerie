@@ -86,3 +86,7 @@ class Managerie:
                 name='managerie_list',
             ),
         ]
+
+    @property
+    def urls(self):
+        return (self._get_urls(), 'admin', self.admin_site.name)

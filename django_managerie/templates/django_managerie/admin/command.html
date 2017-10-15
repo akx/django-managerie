@@ -5,11 +5,16 @@
     <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
     {{ media }}
 {% endblock %}
-
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:managerie_list' app_label=app.label %}">{{ app.verbose_name }} &ndash; Commands</a>
+        &rsaquo; {{ command.title }}
+    </div>
+{% endblock %}
 {% block coltype %}colM{% endblock %}
 {% block content %}
     <div id="content-main">
-        <h1>{{ app.verbose_name }} &mdash; {{ command.title }}</h1>
         <blockquote>{{ command_help }}</blockquote>
         <form action="" method="post">
             {% csrf_token %}
@@ -19,7 +24,7 @@
             <input type="submit" value="{% if executed %}Re-{% endif %}Execute Command">
         </form>
         {% if executed %}
-            <h2>Result</h2>
+            <h2>Result (executed in {{ duration|floatformat:3 }} seconds)</h2>
             {% if error %}
                 <h3>Error: {{ error }}</h3>
                 <pre>{{ error_tb }}</pre>
