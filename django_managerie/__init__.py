@@ -1,1 +1,1 @@
-from .managerie import Managerie
+from .managerie import Managerie  # noqa
