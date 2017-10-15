@@ -7,12 +7,14 @@ FIELD_CLASS_MAP = {'int': forms.IntegerField, }
 
 
 class ArgumentParserForm(forms.Form):
+
     IGNORED_DESTS = {
         'pythonpath',
         'settings',
         'no_color',
         'traceback',
     }
+
     def __init__(self, *, parser, **kwargs):
         """
         :type parser: argparse.ArgumentParser

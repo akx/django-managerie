@@ -1,21 +1,20 @@
 # -- encoding: UTF-8 --
 
-from collections import defaultdict, OrderedDict
-
 import wrapt
 from django.conf.urls import url
 from django.contrib.auth.decorators import user_passes_test
-from django.core.management import get_commands
 from django.urls import reverse
 
+from django_managerie.commands import get_commands
 from django_managerie.views import ManagerieCommandView, ManagerieListView
 
 superuser_required = user_passes_test(lambda u: u.is_active and u.is_superuser)
 
 
 class Managerie:
-    ignored_app_labels = {
+    ignored_app_names = {
         'django.core',
+        'django.contrib.staticfiles',
     }
 
     def __init__(self, admin_site):
@@ -29,20 +28,18 @@ class Managerie:
         self.admin_site.patched_by_managerie = True
 
     def get_commands(self):
-        apps_to_commands = defaultdict(OrderedDict)
-        for command_name, command_app_label in get_commands().items():
-            if command_app_label in self.ignored_app_labels:
-                continue
-            apps_to_commands[command_app_label][command_name] = {
-                'name': command_name,
-                'title': command_name.replace('_', ' ').title(),
-                'url': reverse(
-                    'admin:managerie_command',
-                    kwargs={'app_label': command_app_label, 'command': command_name},
-                    current_app=self.admin_site.name,
-                ),
-            }
-        return apps_to_commands
+        return {
+            app_config: commands
+            for (app_config, commands)
+            in get_commands().items()
+            if app_config.name not in self.ignored_app_names
+        }
+
+    def get_commands_for_app_label(self, app_label):
+        for app_config, commands in self.get_commands().items():
+            if app_config.label == app_label:
+                return commands
+        return []
 
     @wrapt.decorator
     def patched_get_app_list(self, wrapped, instance, args, kwargs):
@@ -58,9 +55,9 @@ class Managerie:
         return self._get_urls() + list(urls)
 
     def _augment_app_list(self, app_list):
-        all_commands = self.get_commands()
+        all_commands = {app_config.label: commands for (app_config, commands) in self.get_commands().items()}
         for app in app_list:
-            commands = all_commands[app['app_label']]
+            commands = all_commands.get(app['app_label'], [])
             if commands:
                 app.setdefault('models', []).append({
                     'perms': {'change': True},
@@ -84,6 +81,11 @@ class Managerie:
                 '^managerie/(?P<app_label>.+?)/$',
                 superuser_required(ManagerieListView.as_view(managerie=self)),
                 name='managerie_list',
+            ),
+            url(
+                '^managerie/$',
+                superuser_required(ManagerieListView.as_view(managerie=self)),
+                name='managerie_list_all',
             ),
         ]
 

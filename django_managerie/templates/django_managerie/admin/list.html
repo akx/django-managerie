@@ -3,7 +3,7 @@
 {% block breadcrumbs %}
     <div class="breadcrumbs">
         <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-        &rsaquo; {{ app.verbose_name }} &ndash; Commands
+        &rsaquo; {{ title }}
     </div>
 {% endblock %}
 {% block content %}
@@ -11,7 +11,9 @@
         <ul>
             {% for command in commands %}
                 <li>
-                    <a href="{{ command.url }}">{{ command.title }}</a>
+                    <a href="{{ command.url }}">
+                        {{ command.app_config.verbose_name }} &ndash; {{ command.title }}
+                    </a>
                 </li>
             {% endfor %}
         </ul>
