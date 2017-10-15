@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+    <div id="content-main">
+        <h1>Management commands in {{ app.verbose_name }}</h1>
+        <ul>
+            {% for command in commands %}
+                <li>
+                    <a href="{{ command.url }}">{{ command.title }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

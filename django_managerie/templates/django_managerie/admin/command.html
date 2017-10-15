@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block extrahead %}{{ block.super }}
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+    {{ media }}
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+{% block content %}
+    <div id="content-main">
+        <h1>{{ app.verbose_name }} &mdash; {{ command.title }}</h1>
+        <blockquote>{{ command_help }}</blockquote>
+        <form action="" method="post">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <input type="submit" value="{% if executed %}Re-{% endif %}Execute Command">
+        </form>
+        {% if executed %}
+            <h2>Result</h2>
+            {% if error %}
+                <h3>Error: {{ error }}</h3>
+                <pre>{{ error_tb }}</pre>
+            {% else %}
+                Command executed successfully.
+            {% endif %}
+            <div style="display: flex">
+                {% if stdout %}
+                    <div>
+                        <h2>Stdout</h2>
+                        <pre>{{ stdout }}</pre>
+                    </div>
+                {% endif %}
+                {% if stderr %}
+                    <div>
+                        <h2>Stderr</h2>
+                        <pre>{{ stderr }}</pre>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
