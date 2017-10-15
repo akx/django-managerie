@@ -1,7 +1,13 @@
 {% extends "admin/base_site.html" %}
+{% load i18n %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; {{ app.verbose_name }} &ndash; Commands
+    </div>
+{% endblock %}
 {% block content %}
     <div id="content-main">
-        <h1>Management commands in {{ app.verbose_name }}</h1>
         <ul>
             {% for command in commands %}
                 <li>
