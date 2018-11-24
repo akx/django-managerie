@@ -22,7 +22,6 @@ class ArgumentParserForm(forms.Form):
         self.parser = parser
         super(ArgumentParserForm, self).__init__(**kwargs)
         for action in self.parser._actions:
-            print(action)
             if isinstance(action, _HelpAction):
                 continue
             if action.dest in self.IGNORED_DESTS:
