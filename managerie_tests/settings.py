@@ -12,6 +12,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_managerie',
+    'managerie_tests',
 ]
 
 MIDDLEWARE = [
