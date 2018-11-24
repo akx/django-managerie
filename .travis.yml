@@ -5,10 +5,11 @@ env:
 python: "3.4"
 install:
   - pip install -U pip
-  - pip install flake8
 script:
   - pip install -e .
-  - flake8 django_managerie
   - python setup.py sdist bdist_wheel
+  - pip install -r requirements-dev.txt
+  - flake8 django_managerie
+  - py.test --cov .
 #after_success:
 #  - bash <(curl -s https://codecov.io/bash)
