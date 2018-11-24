@@ -1,4 +1,7 @@
 *.egg*
 *.py[cod]
+.*cache
+.coverage
 build
 dist
+htmlcov
