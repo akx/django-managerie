@@ -22,7 +22,7 @@ class ManagementCommand:
         )
 
     def get_command_instance(self):
-        return load_command_class(self.app_config.label, self.name)
+        return load_command_class(self.app_config.name, self.name)
 
     @property
     def full_title(self):
