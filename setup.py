@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-managerie',
-    version='0.0',
+    version='0.1',
     author='Aarni Koskela',
     author_email='akx@iki.fi',
     description='Expose Django management commands in the admin',
@@ -22,5 +22,6 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )
