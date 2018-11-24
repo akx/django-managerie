@@ -1,9 +1,14 @@
 # -- encoding: UTF-8 --
-from argparse import _HelpAction, _StoreAction, _StoreTrueAction
+import warnings
+from argparse import _HelpAction, _StoreAction, _StoreTrueAction, _StoreFalseAction, _StoreConstAction
 
 from django import forms
 
-FIELD_CLASS_MAP = {'int': forms.IntegerField, }
+FIELD_CLASS_MAP = {
+    float: forms.FloatField,
+    int: forms.IntegerField,
+    None: forms.CharField,
+}
 
 
 class ArgumentParserForm(forms.Form):
@@ -33,9 +38,11 @@ class ArgumentParserForm(forms.Form):
                 help_text=action.help,
                 required=action.required,
             )
-            if isinstance(action, _StoreTrueAction):
+            if isinstance(action, (_StoreTrueAction, _StoreFalseAction, _StoreConstAction)):
                 field_cls = forms.BooleanField
             elif isinstance(action, _StoreAction):
+                if action.type not in FIELD_CLASS_MAP:
+                    warnings.warn('No specific field class for type %r' % action.type)
                 field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
             if field_cls:
                 self.fields[action.dest] = field_cls(**field_kwargs)
