@@ -2,13 +2,13 @@ import io
 import traceback
 
 import time
+from contextlib import redirect_stdout, redirect_stderr
 from itertools import chain
 
 from django.apps import apps
 from django.views.generic import TemplateView, FormView
 
 from django_managerie.forms import ArgumentParserForm
-from .compat import redirect_stdout, redirect_stderr
 
 
 class MenagerieBaseMixin:
@@ -26,9 +26,9 @@ class ManagerieListView(MenagerieBaseMixin, TemplateView):
     template_name = 'django_managerie/admin/list.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ManagerieListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['app'] = app = self.get_app()
-        context['title'] = '%s \u2013 Commands' % (app.verbose_name if app else 'All Apps')
+        context['title'] = f"{app.verbose_name if app else 'All Apps'} – Commands"
         context['commands'] = sorted(
             (
                 self.managerie.get_commands_for_app_label(app.label).values()
@@ -52,7 +52,7 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
         return ArgumentParserForm(parser=parser, **self.get_form_kwargs())
 
     def get_context_data(self, **kwargs):
-        context = super(ManagerieCommandView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['app'] = self.get_app()
         context['command'] = cmd = self.get_command_object()
         context['command_help'] = cmd.get_command_instance().help
@@ -80,7 +80,7 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
             try:
                 cmd.execute(*args, **options)
             except SystemExit as se:  # We don't want any stray sys.exit()s to quit the app server
-                stderr.write('<exit: %s>' % se)
+                stderr.write(f'<exit: {se}>')
             except Exception as exc:
                 error = exc
                 error_tb = traceback.format_exc()

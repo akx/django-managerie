@@ -1,12 +1,11 @@
-# -- encoding: UTF-8 --
 import os
 from collections import defaultdict, OrderedDict
+from functools import lru_cache
 from importlib import import_module
 
 from django.apps import apps
 from django.core.management import find_commands
 from django.urls import reverse
-from django.utils import lru_cache
 
 from django_managerie.blacklist import BLACKLIST
 
@@ -25,7 +24,7 @@ class ManagementCommand:
         )
 
     def get_command_class(self):
-        mname = '%s.management.commands.%s' % (self.app_config.name, self.name)
+        mname = f'{self.app_config.name}.management.commands.{self.name}'
         return import_module(mname).Command
 
     def get_command_instance(self):
@@ -42,14 +41,14 @@ class ManagementCommand:
 
     @property
     def full_title(self):
-        return '%s \u2013 %s' % (self.app_config.verbose_name, self.title)
+        return f'{self.app_config.verbose_name} – {self.title}'
 
     @property
     def full_name(self):
-        return '%s.%s' % (self.app_config.label, self.name)
+        return f'{self.app_config.label}.{self.name}'
 
 
-@lru_cache.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def get_commands():
     # Logic filched from django.core.management.get_commands(), but expressed in a saner way.
     apps_to_commands = defaultdict(OrderedDict)
