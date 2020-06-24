@@ -1,5 +1,3 @@
-# -- encoding: UTF-8 --
-
 import wrapt
 from django.conf.urls import url
 from django.contrib.auth.decorators import user_passes_test

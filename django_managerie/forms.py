@@ -1,8 +1,9 @@
-# -- encoding: UTF-8 --
 import warnings
-from argparse import _HelpAction, _StoreAction, _StoreTrueAction, _StoreFalseAction, _StoreConstAction
+import argparse
 
 from django import forms
+
+BOOLEAN_ACTIONS = (argparse._StoreTrueAction, argparse._StoreFalseAction, argparse._StoreConstAction)
 
 FIELD_CLASS_MAP = {
     float: forms.FloatField,
@@ -12,7 +13,6 @@ FIELD_CLASS_MAP = {
 
 
 class ArgumentParserForm(forms.Form):
-
     IGNORED_DESTS = {
         'pythonpath',
         'settings',
@@ -20,31 +20,31 @@ class ArgumentParserForm(forms.Form):
         'traceback',
     }
 
-    def __init__(self, *, parser, **kwargs):
-        """
-        :type parser: argparse.ArgumentParser
-        """
+    def __init__(self, *, parser: argparse.ArgumentParser, **kwargs):
+        super().__init__(**kwargs)
         self.parser = parser
-        super(ArgumentParserForm, self).__init__(**kwargs)
         for action in self.parser._actions:
-            if isinstance(action, _HelpAction):
-                continue
-            if action.dest in self.IGNORED_DESTS:
-                continue
-            field_cls = None
-            field_kwargs = dict(
-                initial=action.default,
-                label=action.dest.replace('_', ' ').title(),
-                help_text=action.help,
-                required=action.required,
-            )
-            if isinstance(action, (_StoreTrueAction, _StoreFalseAction, _StoreConstAction)):
-                field_cls = forms.BooleanField
-            elif isinstance(action, _StoreAction):
-                if action.type not in FIELD_CLASS_MAP:
-                    warnings.warn('No specific field class for type %r' % action.type)
-                field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
-            if field_cls:
-                self.fields[action.dest] = field_cls(**field_kwargs)
+            self._process_action(action)
 
-            # TODO: Probably support for more fields :)
+    def _process_action(self, action):
+        if isinstance(action, argparse._HelpAction):
+            return
+        if action.dest in self.IGNORED_DESTS:
+            return
+        field_cls = None
+        field_kwargs = dict(
+            initial=action.default,
+            label=action.dest.replace('_', ' ').title(),
+            help_text=action.help,
+            required=action.required,
+        )
+        if isinstance(action, BOOLEAN_ACTIONS):
+            field_cls = forms.BooleanField
+        elif isinstance(action, argparse._StoreAction):
+            if action.type not in FIELD_CLASS_MAP:
+                warnings.warn(f'No specific field class for type {action.type!r}')
+            field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
+        if field_cls:
+            self.fields[action.dest] = field_cls(**field_kwargs)
+
+        # TODO: Probably support for more fields :)
