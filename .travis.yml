@@ -2,7 +2,7 @@ sudo: false
 language: python
 env:
 - DEBUG=1
-python: "3.4"
+python: "3.6"
 install:
   - pip install -U pip
 script:

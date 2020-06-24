@@ -2,6 +2,7 @@
 *.py[cod]
 .*cache
 .coverage
+.tox
 build
 dist
 htmlcov

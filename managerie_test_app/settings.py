@@ -12,7 +12,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_managerie',
-    'managerie_tests',
+    'managerie_test_app',
 ]
 
 MIDDLEWARE = [
@@ -25,7 +25,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'managerie_tests.urls'
+ROOT_URLCONF = 'managerie_test_app.urls'
 
 TEMPLATES = [
     {
@@ -43,7 +43,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'managerie_tests.wsgi.application'
+WSGI_APPLICATION = 'managerie_test_app.wsgi.application'
 
 DATABASES = {
     'default': {
