@@ -20,7 +20,7 @@ def test_managerie(admin_client):
 
 @pytest.mark.django_db
 def test_mg_test_command(admin_client):
-    url = '/admin/managerie/managerie_tests/mg_test_command/'
+    url = '/admin/managerie/managerie_test_app/mg_test_command/'
     assert 'wololo' in admin_client.get(url).content.decode()
     string = get_random_string()
     content = admin_client.post(url, {
