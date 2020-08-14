@@ -12,6 +12,4 @@ script:
   - python setup.py sdist bdist_wheel
   - pip install -r requirements-dev.txt
   - flake8 django_managerie
-  - py.test --cov .
-#after_success:
-#  - bash <(curl -s https://codecov.io/bash)
+  - tox -- --cov .
