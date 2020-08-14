@@ -1,7 +1,6 @@
 import wrapt
-from django.conf.urls import url
 from django.contrib.auth.decorators import user_passes_test
-from django.urls import reverse
+from django.urls import reverse, path
 
 from django_managerie.commands import get_commands
 from django_managerie.views import ManagerieCommandView, ManagerieListView
@@ -70,18 +69,18 @@ class Managerie:
 
     def _get_urls(self):
         return [
-            url(
-                '^managerie/(?P<app_label>.+?)/(?P<command>.+?)/$',
+            path(
+                'managerie/<app_label>/<command>/',
                 superuser_required(ManagerieCommandView.as_view(managerie=self)),
                 name='managerie_command',
             ),
-            url(
-                '^managerie/(?P<app_label>.+?)/$',
+            path(
+                'managerie/<app_label>/',
                 superuser_required(ManagerieListView.as_view(managerie=self)),
                 name='managerie_list',
             ),
-            url(
-                '^managerie/$',
+            path(
+                'managerie/',
                 superuser_required(ManagerieListView.as_view(managerie=self)),
                 name='managerie_list_all',
             ),
