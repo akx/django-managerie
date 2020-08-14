@@ -22,7 +22,7 @@ def test_managerie(admin_client):
 def test_mg_test_command(admin_client):
     url = '/admin/managerie/managerie_test_app/mg_test_command/'
     assert 'wololo' in admin_client.get(url).content.decode()
-    string = get_random_string()
+    string = get_random_string(42)
     content = admin_client.post(url, {
         'true_option': '1',
         'false_option': '1',
