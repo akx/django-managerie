@@ -1,15 +1,21 @@
-#!/usr/bin/env python
-
+import re
 from setuptools import setup, find_packages
+
+try:
+    with open('./django_managerie/__init__.py', 'r') as infp:
+        version = re.search("__version__ = ['\"]([^'\"]+)['\"]", infp.read()).group(1)
+except IOError:
+    version = 'unknown'
+
 
 setup(
     name='django-managerie',
-    version='0.1',
+    version=version,
     author='Aarni Koskela',
     author_email='akx@iki.fi',
     description='Expose Django management commands in the admin',
     include_package_data=True,
-    install_requires=['Django', 'wrapt'],
+    install_requires=['Django>=2.2', 'wrapt'],
     license='MIT',
     packages=find_packages(include=('django_managerie', 'django_managerie*')),
     url='https://github.com/akx/django-managerie',
