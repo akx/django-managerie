@@ -6,7 +6,8 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.decorators import user_passes_test
 from django.urls import URLPattern, path, reverse
 
-from django_managerie.commands import get_commands
+from django_managerie.blocklist import COMMAND_BLOCKLIST
+from django_managerie.commands import ManagementCommand, get_commands
 from django_managerie.types import CommandMap
 from django_managerie.views import ManagerieCommandView, ManagerieListView
 
@@ -31,13 +32,26 @@ class Managerie:
         self.admin_site.get_urls = self.patched_get_urls(old_get_urls)  # type: ignore[assignment]
         self.admin_site.patched_by_managerie = True  # type: ignore[attr-defined]
 
+    def is_command_allowed(self, command: ManagementCommand) -> bool:
+        # This could be overridden in a subclass to allow for more fine-grained
+        # control over which commands are allowed.
+
+        if command.full_name in COMMAND_BLOCKLIST:
+            return False
+        if getattr(command.get_command_class(), 'disable_managerie', False):
+            return False
+        return True
+
     def get_commands(self) -> Dict[AppConfig, CommandMap]:
-        return {
-            app_config: commands
-            for (app_config, commands)
-            in get_commands().items()
-            if app_config.name not in self.ignored_app_names
-        }
+        command_map: Dict[AppConfig, CommandMap] = {}
+        for app_config, commands in get_commands().items():
+            command_map[app_config] = {
+                command_name: command
+                for (command_name, command)
+                in commands.items()
+                if self.is_command_allowed(command)
+            }
+        return command_map
 
     def get_commands_for_app_label(self, app_label: str) -> CommandMap:
         for app_config, commands in self.get_commands().items():
