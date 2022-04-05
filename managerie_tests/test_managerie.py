@@ -16,6 +16,8 @@ def test_managerie(admin_client):
     all_commands_content = admin_client.get('/admin/managerie/').content.decode()
     assert 'Mg Test Command' in all_commands_content
     assert 'mg_test_command' in all_commands_content
+    assert 'Mg Disabled Command' not in all_commands_content
+    assert 'mg_disabled_command' not in all_commands_content
 
 
 @pytest.mark.django_db
@@ -31,3 +33,9 @@ def test_mg_test_command(admin_client):
     assert 'Command executed successfully.' in content
     data = json.loads(unescape(content[content.index('XXX:') + 4:content.index(':XXX')]))
     assert data['string_option'] == string
+
+
+@pytest.mark.django_db
+def test_mg_disabled_command(admin_client):
+    url = '/admin/managerie/managerie_test_app/mg_disabled_command/'
+    assert 'Not Found' in admin_client.get(url).content.decode()

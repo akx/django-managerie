@@ -1,13 +1,11 @@
 import os
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import lru_cache
 from importlib import import_module
 
 from django.apps import apps
 from django.core.management import find_commands
 from django.urls import reverse
-
-from django_managerie.blacklist import BLACKLIST
 
 
 class ManagementCommand:
@@ -32,14 +30,6 @@ class ManagementCommand:
         return cls()
 
     @property
-    def is_enabled(self):
-        if self.full_name in BLACKLIST:
-            return False
-        if getattr(self.get_command_class(), 'disable_managerie', False):
-            return False
-        return True
-
-    @property
     def full_title(self):
         return f'{self.app_config.verbose_name} – {self.title}'
 
@@ -56,11 +46,8 @@ def get_commands():
     for app_config in apps.get_app_configs():
         path = os.path.join(app_config.path, 'management')
         for command_name in find_commands(path):
-            cmd = ManagementCommand(
+            apps_to_commands[app_config][command_name] = ManagementCommand(
                 app_config=app_config,
                 name=command_name,
             )
-            if not cmd.is_enabled:
-                continue
-            apps_to_commands[app_config][command_name] = cmd
     return apps_to_commands

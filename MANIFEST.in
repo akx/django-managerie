@@ -1,1 +1,1 @@
-recursive-include django_managerie *.html
+recursive-include django_managerie *.html py.typed
