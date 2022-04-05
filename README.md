@@ -6,8 +6,8 @@ django-managerie
 Requirements
 ------------
 
-* Django 1.9+ (maybe? a recent version anyway)
-* Python 3
+* Django 3.2+ (this project tracks Django's end-of-life policy)
+* Python 3.6+
 
 Installation
 ------------
