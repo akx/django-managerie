@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from django.apps import apps
 from django.apps.config import AppConfig
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.views.generic import FormView, TemplateView
 
 from django_managerie.commands import ManagementCommand
@@ -54,15 +54,22 @@ class ManagerieListView(MenagerieBaseMixin, TemplateView):
 class ManagerieCommandView(MenagerieBaseMixin, FormView):
     template_name = 'django_managerie/admin/command.html'
 
+    @property
+    def command_name(self) -> str:
+        return self.kwargs['command']
+
     def get_command_object(self) -> ManagementCommand:
         app = self.get_app()
         managerie = self.managerie
         assert app and managerie
-        return managerie.get_commands_for_app_label(app.label)[self.kwargs['command']]
+        try:
+            return managerie.get_commands_for_app_label(app.label)[self.command_name]
+        except KeyError:
+            raise Http404(f"Command {self.command_name} not found in {app.label}")
 
     def get_form(self, form_class=None) -> ArgumentParserForm:
         cmd = self.get_command_object().get_command_instance()
-        parser = cmd.create_parser('django', self.kwargs['command'])
+        parser = cmd.create_parser('django', self.command_name)
         return ArgumentParserForm(parser=parser, **self.get_form_kwargs())
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
