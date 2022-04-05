@@ -7,7 +7,7 @@ from django.apps import apps
 from django.core.management import find_commands
 from django.urls import reverse
 
-from django_managerie.blacklist import BLACKLIST
+from django_managerie.blocklist import COMMAND_BLOCKLIST
 
 
 class ManagementCommand:
@@ -33,7 +33,7 @@ class ManagementCommand:
 
     @property
     def is_enabled(self):
-        if self.full_name in BLACKLIST:
+        if self.full_name in COMMAND_BLOCKLIST:
             return False
         if getattr(self.get_command_class(), 'disable_managerie', False):
             return False
