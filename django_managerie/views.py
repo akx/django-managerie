@@ -76,6 +76,7 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
             options.update({
                 'traceback': True,
                 'no_color': True,
+                'force_color': False,
                 'stdout': stdout,
                 'stderr': stderr,
             })

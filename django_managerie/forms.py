@@ -14,9 +14,10 @@ FIELD_CLASS_MAP = {
 
 class ArgumentParserForm(forms.Form):
     IGNORED_DESTS = {
+        'force_color',
+        'no_color',
         'pythonpath',
         'settings',
-        'no_color',
         'traceback',
     }
 
