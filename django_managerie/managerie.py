@@ -1,6 +1,6 @@
 import wrapt
 from django.contrib.auth.decorators import user_passes_test
-from django.urls import reverse, path
+from django.urls import path, reverse
 
 from django_managerie.commands import get_commands
 from django_managerie.views import ManagerieCommandView, ManagerieListView

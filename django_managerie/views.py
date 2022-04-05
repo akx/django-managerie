@@ -1,12 +1,11 @@
 import io
-import traceback
-
 import time
-from contextlib import redirect_stdout, redirect_stderr
+import traceback
+from contextlib import redirect_stderr, redirect_stdout
 from itertools import chain
 
 from django.apps import apps
-from django.views.generic import TemplateView, FormView
+from django.views.generic import FormView, TemplateView
 
 from django_managerie.forms import ArgumentParserForm
 

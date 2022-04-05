@@ -1,5 +1,5 @@
 import os
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import lru_cache
 from importlib import import_module
 
