@@ -53,10 +53,13 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['app'] = self.get_app()
-        context['command'] = cmd = self.get_command_object()
-        context['command_help'] = cmd.get_command_instance().help
-        context['title'] = cmd.full_title
+        command = self.get_command_object()
+        context.update(
+            app=self.get_app(),
+            command=command,
+            command_help=command.get_command_instance().help,
+            title=command.full_title,
+        )
         return context
 
     def form_valid(self, form):
