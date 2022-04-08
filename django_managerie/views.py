@@ -103,6 +103,7 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
             })
             cmd = co.get_command_instance()
             try:
+                cmd._managerie_request = self.request
                 cmd.execute(*args, **options)
             except SystemExit as se:  # We don't want any stray sys.exit()s to quit the app server
                 stderr.write(f'<exit: {se}>')
