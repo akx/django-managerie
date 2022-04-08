@@ -11,5 +11,9 @@ class Command(BaseCommand):
         parser.add_argument('string_option', default='wololo')
 
     def handle(self, **options):
-        data = json.dumps(options, default=str, sort_keys=True)
+        request = getattr(self, '_managerie_request', None)
+        data = json.dumps({
+            **options,
+            'username': request.user.username,
+        }, default=str, sort_keys=True)
         self.stdout.write('XXX:' + data + ':XXX')

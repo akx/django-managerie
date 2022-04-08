@@ -57,6 +57,11 @@ admin is mounted).
 If you click through to a command, you'll see the arguments of the command laid out as a form.
 Fill the form, then hit "Execute Command", and you're done! :sparkles:
 
+### Accessing the Django request from a managerie'd command
+
+Managerie sets `_managerie_request` on the command instance to the current Django request.
+You can use it to access the request, for instance, to get the current user.
+
 TODO
 ----
 

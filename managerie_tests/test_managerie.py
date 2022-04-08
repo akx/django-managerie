@@ -21,7 +21,7 @@ def test_managerie(admin_client):
 
 
 @pytest.mark.django_db
-def test_mg_test_command(admin_client):
+def test_mg_test_command(admin_client, admin_user):
     url = '/admin/managerie/managerie_test_app/mg_test_command/'
     assert 'wololo' in admin_client.get(url).content.decode()
     string = get_random_string(42)
@@ -33,6 +33,8 @@ def test_mg_test_command(admin_client):
     assert 'Command executed successfully.' in content
     data = json.loads(unescape(content[content.index('XXX:') + 4:content.index(':XXX')]))
     assert data['string_option'] == string
+    assert admin_user.username
+    assert data['username'] == admin_user.username
 
 
 @pytest.mark.django_db
