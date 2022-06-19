@@ -1,3 +1,6 @@
+[![pypi](https://img.shields.io/pypi/v/django-managerie.svg)](https://pypi.python.org/pypi/django-managerie/)
+
+
 django-managerie
 ================
 
