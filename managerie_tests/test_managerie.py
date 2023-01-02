@@ -76,4 +76,5 @@ def test_outsider_no_access(client):
         'mg_unprivileged_command',
     ):
         url = f'/admin/managerie/managerie_test_app/{command}/'
-        assert 'Not Found' in client.get(url).content.decode()
+        resp = client.get(url)
+        assert resp.status_code == 302  # Redirect to login
