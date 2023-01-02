@@ -48,3 +48,32 @@ def test_mg_test_command(admin_client, admin_user):
 def test_mg_disabled_command(admin_client):
     url = '/admin/managerie/managerie_test_app/mg_disabled_command/'
     assert 'Not Found' in admin_client.get(url).content.decode()
+
+
+@pytest.mark.django_db
+def test_staff_no_access(staff_client):
+    # Test there's no access to these commands for staff users
+    for command in ('mg_disabled_command', 'mg_test_command'):
+        url = f'/admin/managerie/managerie_test_app/{command}/'
+        assert 'Not Found' in staff_client.get(url).content.decode()
+
+
+@pytest.mark.django_db
+def test_staff_custom_access(staff_client):
+    # Test there's access to mg_unprivileged_command for staff users
+    url = '/admin/managerie/managerie_test_app/mg_unprivileged_command/'
+    assert 'Unprivileged' in staff_client.get(url).content.decode()
+    content = staff_client.post(url, {}).content.decode()
+    assert 'Command executed successfully.' in content
+
+
+@pytest.mark.django_db
+def test_outsider_no_access(client):
+    # Test there's no access to these commands for outsiders
+    for command in (
+        'mg_disabled_command',
+        'mg_test_command',
+        'mg_unprivileged_command',
+    ):
+        url = f'/admin/managerie/managerie_test_app/{command}/'
+        assert 'Not Found' in client.get(url).content.decode()
