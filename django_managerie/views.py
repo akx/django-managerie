@@ -44,9 +44,14 @@ class ManagerieListView(MenagerieBaseMixin, TemplateView):
             (
                 managerie.get_commands_for_app_label(app.label).values()
                 if app
-                else chain(*(app_commands.values() for app_commands in managerie.get_commands().values()))
+                else chain(
+                    *(
+                        app_commands.values()
+                        for app_commands in managerie.get_commands().values()
+                    )
+                )
             ),
-            key=lambda cmd: cmd.full_title
+            key=lambda cmd: cmd.full_title,
         )
         return context
 
@@ -86,7 +91,8 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
     def form_valid(self, form: ArgumentParserForm) -> HttpResponse:
         # This mimics BaseCommand.run_from_argv():
         options = dict(form.cleaned_data)
-        args = options.pop('args', ())  # "Move positional args out of options to mimic legacy optparse"
+        # "Move positional args out of options to mimic legacy optparse"
+        args = options.pop('args', ())
         stdout = io.StringIO()
         stderr = io.StringIO()
         error = None
@@ -94,13 +100,15 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
         t0 = time.time()
         co = self.get_command_object()
         with redirect_stdout(stdout), redirect_stderr(stderr):
-            options.update({
-                'traceback': True,
-                'no_color': True,
-                'force_color': False,
-                'stdout': stdout,
-                'stderr': stderr,
-            })
+            options.update(
+                {
+                    'traceback': True,
+                    'no_color': True,
+                    'force_color': False,
+                    'stdout': stdout,
+                    'stderr': stderr,
+                }
+            )
             cmd = co.get_command_instance()
             try:
                 cmd._managerie_request = self.request

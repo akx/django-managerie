@@ -47,8 +47,7 @@ class Managerie:
         for app_config, commands in get_commands().items():
             command_map[app_config] = {
                 command_name: command
-                for (command_name, command)
-                in commands.items()
+                for (command_name, command) in commands.items()
                 if self.is_command_allowed(command)
             }
         return command_map
@@ -68,25 +67,37 @@ class Managerie:
         return app_list
 
     @wrapt.decorator
-    def patched_get_urls(self, wrapped: Callable, instance: AdminSite, args: Tuple[()], kwargs: Dict[Any, Any]) -> list:
+    def patched_get_urls(
+        self,
+        wrapped: Callable,
+        instance: AdminSite,
+        args: Tuple[()],
+        kwargs: Dict[Any, Any],
+    ) -> list:
         urls = wrapped(*args, **kwargs)
         return self._get_urls() + list(urls)
 
     def _augment_app_list(self, app_list):
-        all_commands = {app_config.label: commands for (app_config, commands) in self.get_commands().items()}
+        all_commands = {
+            app_config.label: commands
+            for (app_config, commands) in self.get_commands().items()
+        }
         for app in app_list:
             commands = all_commands.get(app['app_label'], [])
             if commands:
-                app.setdefault('models', []).append({
-                    'perms': {'change': True},
-                    'admin_url': reverse(
-                        'admin:managerie_list',
-                        kwargs={'app_label': app['app_label']},
-                        current_app=self.admin_site.name,
-                    ),
-                    'name': 'Commands',
-                    'object_name': '_ManagerieCommands_',
-                })
+                app.setdefault('models', []).append(self._make_app_command(app))
+
+    def _make_app_command(self, app):
+        return {
+            'perms': {'change': True},
+            'admin_url': reverse(
+                'admin:managerie_list',
+                kwargs={'app_label': app['app_label']},
+                current_app=self.admin_site.name,
+            ),
+            'name': 'Commands',
+            'object_name': '_ManagerieCommands_',
+        }
 
     def _get_urls(self) -> List[URLPattern]:
         return [
