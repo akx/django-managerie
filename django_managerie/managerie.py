@@ -11,7 +11,9 @@ from django_managerie.commands import ManagementCommand, get_commands
 from django_managerie.types import CommandMap
 from django_managerie.views import ManagerieCommandView, ManagerieListView
 
-superuser_required = user_passes_test(lambda u: u.is_active and u.is_superuser)
+superuser_required = user_passes_test(
+    lambda u: bool(u.is_active and getattr(u, "is_superuser", None))
+)
 
 
 class Managerie:

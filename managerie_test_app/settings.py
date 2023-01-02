@@ -1,9 +1,10 @@
 import os
+from typing import List
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'vpf9qs8wv6b8k(%6%=0)six1u4z6g@gb0l5(duj$hw_lg_45$l'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -53,7 +54,7 @@ DATABASES = {
     }
 }
 
-AUTH_PASSWORD_VALIDATORS = []
+AUTH_PASSWORD_VALIDATORS: List[str] = []
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
