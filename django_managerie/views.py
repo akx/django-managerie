@@ -7,6 +7,7 @@ from typing import Any, Dict, Iterable, Optional
 
 from django.apps import apps
 from django.apps.config import AppConfig
+from django.contrib.auth.mixins import AccessMixin
 from django.http import Http404, HttpResponse
 from django.views.generic import FormView, TemplateView
 
@@ -29,7 +30,20 @@ class MenagerieBaseMixin:
         return None
 
 
-class ManagerieListView(MenagerieBaseMixin, TemplateView):
+class StaffRequiredMixin(AccessMixin):
+    """
+    Verify that the current user is authenticated and is a staff member.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
+        if not request.user.is_staff:
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ManagerieListView(MenagerieBaseMixin, StaffRequiredMixin, TemplateView):
     template_name = 'django_managerie/admin/list.html'
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -57,7 +71,7 @@ class ManagerieListView(MenagerieBaseMixin, TemplateView):
         return context
 
 
-class ManagerieCommandView(MenagerieBaseMixin, FormView):
+class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
     template_name = 'django_managerie/admin/command.html'
 
     @property
