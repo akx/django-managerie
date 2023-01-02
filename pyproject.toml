@@ -24,7 +24,6 @@ classifiers = [
 ]
 dependencies = [
     "Django>=3.2",
-    "wrapt",
 ]
 
 [project.urls]

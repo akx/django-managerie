@@ -1,6 +1,6 @@
-from typing import Any, Callable, Dict, List, Tuple
+from functools import wraps
+from typing import Dict, List
 
-import wrapt
 from django.apps.config import AppConfig
 from django.contrib.admin.sites import AdminSite
 from django.http import HttpRequest
@@ -31,9 +31,21 @@ class Managerie:
         if hasattr(self.admin_site, 'patched_by_managerie'):
             return
         old_get_app_list = self.admin_site.get_app_list
-        self.admin_site.get_app_list = self.patched_get_app_list(old_get_app_list)  # type: ignore[assignment]
         old_get_urls = self.admin_site.get_urls
-        self.admin_site.get_urls = self.patched_get_urls(old_get_urls)  # type: ignore[assignment]
+
+        @wraps(old_get_app_list)
+        def patched_get_app_list(request: HttpRequest, *args, **kwargs):
+            app_list = old_get_app_list(request, *args, **kwargs)
+            if user_is_superuser(request):
+                self._augment_app_list(request, app_list)
+            return app_list
+
+        @wraps(old_get_urls)
+        def patched_get_urls() -> list:
+            return self._get_urls() + list(old_get_urls())
+
+        self.admin_site.get_app_list = patched_get_app_list  # type: ignore[assignment]
+        self.admin_site.get_urls = patched_get_urls  # type: ignore[assignment]
         self.admin_site.patched_by_managerie = True  # type: ignore[attr-defined]
 
     def is_command_allowed(
@@ -88,25 +100,6 @@ class Managerie:
             if app_config.label == app_label:
                 return commands
         return {}
-
-    @wrapt.decorator
-    def patched_get_app_list(self, wrapped, instance: AdminSite, args, kwargs):
-        request = args[0]
-        app_list: List[Dict] = wrapped(*args, **kwargs)
-        if request.user.is_superuser:
-            self._augment_app_list(request, app_list)
-        return app_list
-
-    @wrapt.decorator
-    def patched_get_urls(
-        self,
-        wrapped: Callable,
-        instance: AdminSite,
-        args: Tuple[()],
-        kwargs: Dict[Any, Any],
-    ) -> list:
-        urls = wrapped(*args, **kwargs)
-        return self._get_urls() + list(urls)
 
     def _augment_app_list(
         self,
