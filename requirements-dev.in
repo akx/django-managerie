@@ -1,8 +1,2 @@
-flake8
-flake8-bugbear
-flake8-isort
-flake8-simplify
-mypy
 pytest-cov
 pytest-django
-tox

@@ -12,8 +12,12 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         request = getattr(self, '_managerie_request', None)
-        data = json.dumps({
-            **options,
-            'username': request.user.username,
-        }, default=str, sort_keys=True)
+        data = json.dumps(
+            {
+                **options,
+                'username': request.user.username,
+            },
+            default=str,
+            sort_keys=True,
+        )
         self.stdout.write('XXX:' + data + ':XXX')

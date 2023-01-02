@@ -4,7 +4,11 @@ from typing import Any, Mapping, Optional, Type
 
 from django import forms
 
-BOOLEAN_ACTIONS = (argparse._StoreTrueAction, argparse._StoreFalseAction, argparse._StoreConstAction)
+BOOLEAN_ACTIONS = (
+    argparse._StoreTrueAction,
+    argparse._StoreFalseAction,
+    argparse._StoreConstAction,
+)
 
 FIELD_CLASS_MAP: Mapping[Any, Type[forms.Field]] = {
     float: forms.FloatField,
