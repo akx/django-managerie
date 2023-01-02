@@ -1,6 +1,5 @@
 [![pypi](https://img.shields.io/pypi/v/django-managerie.svg)](https://pypi.python.org/pypi/django-managerie/)
 
-
 django-managerie
 ================
 
@@ -10,7 +9,7 @@ Requirements
 ------------
 
 * Django 3.2+ (this project tracks Django's end-of-life policy)
-* Python 3.6+
+* Python 3.7+
 
 Installation
 ------------
