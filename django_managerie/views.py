@@ -3,7 +3,7 @@ import time
 import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 
 from django.apps import apps
 from django.apps.config import AppConfig
@@ -12,13 +12,11 @@ from django.views.generic import FormView, TemplateView
 
 from django_managerie.commands import ManagementCommand
 from django_managerie.forms import ArgumentParserForm
-
-if TYPE_CHECKING:
-    from django_managerie.managerie import Managerie
+from django_managerie.managerie import Managerie
 
 
 class MenagerieBaseMixin:
-    managerie: Optional["Managerie"] = None
+    managerie: Optional[Managerie] = None
     kwargs: Dict[str, Any]
     _app: Optional[AppConfig]
 
@@ -40,19 +38,22 @@ class ManagerieListView(MenagerieBaseMixin, TemplateView):
         context['title'] = f"{app.verbose_name if app else 'All Apps'} – Commands"
         managerie = self.managerie
         assert managerie
-        context['commands'] = sorted(
-            (
-                managerie.get_commands_for_app_label(app.label).values()
-                if app
-                else chain(
-                    *(
-                        app_commands.values()
-                        for app_commands in managerie.get_commands().values()
-                    )
+        commands: Iterable[ManagementCommand]
+        if app:
+            commands = managerie.get_commands_for_app_label(
+                request=self.request,
+                app_label=app.label,
+            ).values()
+        else:
+            commands = chain(
+                *(
+                    app_commands.values()
+                    for app_commands in managerie.get_commands(
+                        request=self.request
+                    ).values()
                 )
-            ),
-            key=lambda cmd: cmd.full_title,
-        )
+            )
+        context['commands'] = sorted(commands, key=lambda cmd: cmd.full_title)
         return context
 
 
@@ -68,9 +69,15 @@ class ManagerieCommandView(MenagerieBaseMixin, FormView):
         managerie = self.managerie
         assert app and managerie
         try:
-            return managerie.get_commands_for_app_label(app.label)[self.command_name]
+            return managerie.get_commands_for_app_label(
+                request=self.request,
+                app_label=app.label,
+            )[self.command_name]
         except KeyError:
-            raise Http404(f"Command {self.command_name} not found in {app.label}")
+            raise Http404(
+                f"Command {self.command_name} not found in {app.label} "
+                f"(or you don't have permission to run it)"
+            )
 
     def get_form(self, form_class=None) -> ArgumentParserForm:
         cmd = self.get_command_object().get_command_instance()
