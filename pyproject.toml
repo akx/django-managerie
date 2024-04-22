@@ -40,6 +40,18 @@ include = [
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "managerie_test_app.settings"
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+extend-select = [
+    "COM",
+    "C9",
+    "E",
+    "F",
+    "I",
+    "W",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10

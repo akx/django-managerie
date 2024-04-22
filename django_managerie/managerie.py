@@ -20,15 +20,15 @@ def user_is_superuser(request: HttpRequest) -> bool:
 
 class Managerie:
     ignored_app_names = {
-        'django.core',
-        'django.contrib.staticfiles',
+        "django.core",
+        "django.contrib.staticfiles",
     }
 
     def __init__(self, admin_site: AdminSite) -> None:
         self.admin_site = admin_site
 
     def patch(self) -> None:
-        if hasattr(self.admin_site, 'patched_by_managerie'):
+        if hasattr(self.admin_site, "patched_by_managerie"):
             return
         old_get_app_list = self.admin_site.get_app_list
         old_get_urls = self.admin_site.get_urls
@@ -74,7 +74,7 @@ class Managerie:
         """
         if command.full_name in COMMAND_BLOCKLIST:
             return False
-        if getattr(command.get_command_class(), 'disable_managerie', False):
+        if getattr(command.get_command_class(), "disable_managerie", False):
             return False
         return True
 
@@ -107,23 +107,22 @@ class Managerie:
         app_list: List[Dict],
     ):
         all_commands: Dict[str, CommandMap] = {
-            app_config.label: commands
-            for (app_config, commands) in self.get_commands(request).items()
+            app_config.label: commands for (app_config, commands) in self.get_commands(request).items()
         }
         for app in app_list:
-            if all_commands.get(app['app_label']):  # Has commands?
-                app.setdefault('models', []).append(self._make_app_command(app))
+            if all_commands.get(app["app_label"]):  # Has commands?
+                app.setdefault("models", []).append(self._make_app_command(app))
 
     def _make_app_command(self, app):
         return {
-            'perms': {'change': True},
-            'admin_url': reverse(
-                'admin:managerie_list',
-                kwargs={'app_label': app['app_label']},
+            "perms": {"change": True},
+            "admin_url": reverse(
+                "admin:managerie_list",
+                kwargs={"app_label": app["app_label"]},
                 current_app=self.admin_site.name,
             ),
-            'name': 'Commands',
-            'object_name': '_ManagerieCommands_',
+            "name": "Commands",
+            "object_name": "_ManagerieCommands_",
         }
 
     def _get_urls(self) -> List[URLPattern]:
@@ -131,22 +130,22 @@ class Managerie:
 
         return [
             path(
-                'managerie/<app_label>/<command>/',
+                "managerie/<app_label>/<command>/",
                 ManagerieCommandView.as_view(managerie=self),
-                name='managerie_command',
+                name="managerie_command",
             ),
             path(
-                'managerie/<app_label>/',
+                "managerie/<app_label>/",
                 ManagerieListView.as_view(managerie=self),
-                name='managerie_list',
+                name="managerie_list",
             ),
             path(
-                'managerie/',
+                "managerie/",
                 ManagerieListView.as_view(managerie=self),
-                name='managerie_list_all',
+                name="managerie_list_all",
             ),
         ]
 
     @property
     def urls(self):
-        return (self._get_urls(), 'admin', self.admin_site.name)
+        return (self._get_urls(), "admin", self.admin_site.name)

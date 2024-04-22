@@ -22,10 +22,10 @@ class MenagerieBaseMixin:
     _app: Optional[AppConfig]
 
     def get_app(self) -> Optional[AppConfig]:
-        if hasattr(self, '_app'):
+        if hasattr(self, "_app"):
             return self._app
-        if 'app_label' in self.kwargs:
-            self._app = apps.get_app_config(self.kwargs['app_label'])
+        if "app_label" in self.kwargs:
+            self._app = apps.get_app_config(self.kwargs["app_label"])
             return self._app
         return None
 
@@ -44,12 +44,12 @@ class StaffRequiredMixin(AccessMixin):
 
 
 class ManagerieListView(MenagerieBaseMixin, StaffRequiredMixin, TemplateView):
-    template_name = 'django_managerie/admin/list.html'
+    template_name = "django_managerie/admin/list.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
-        context['app'] = app = self.get_app()
-        context['title'] = f"{app.verbose_name if app else 'All Apps'} – Commands"
+        context["app"] = app = self.get_app()
+        context["title"] = f"{app.verbose_name if app else 'All Apps'} – Commands"
         managerie = self.managerie
         assert managerie
         commands: Iterable[ManagementCommand]
@@ -60,23 +60,18 @@ class ManagerieListView(MenagerieBaseMixin, StaffRequiredMixin, TemplateView):
             ).values()
         else:
             commands = chain(
-                *(
-                    app_commands.values()
-                    for app_commands in managerie.get_commands(
-                        request=self.request
-                    ).values()
-                )
+                *(app_commands.values() for app_commands in managerie.get_commands(request=self.request).values()),
             )
-        context['commands'] = sorted(commands, key=lambda cmd: cmd.full_title)
+        context["commands"] = sorted(commands, key=lambda cmd: cmd.full_title)
         return context
 
 
 class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
-    template_name = 'django_managerie/admin/command.html'
+    template_name = "django_managerie/admin/command.html"
 
     @property
     def command_name(self) -> str:
-        return self.kwargs['command']
+        return self.kwargs["command"]
 
     def get_command_object(self) -> ManagementCommand:
         app = self.get_app()
@@ -89,13 +84,12 @@ class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
             )[self.command_name]
         except KeyError:
             raise Http404(
-                f"Command {self.command_name} not found in {app.label} "
-                f"(or you don't have permission to run it)"
+                f"Command {self.command_name} not found in {app.label} " f"(or you don't have permission to run it)",
             )
 
     def get_form(self, form_class=None) -> ArgumentParserForm:
         cmd = self.get_command_object().get_command_instance()
-        parser = cmd.create_parser('django', self.command_name)
+        parser = cmd.create_parser("django", self.command_name)
         return ArgumentParserForm(parser=parser, **self.get_form_kwargs())
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -113,7 +107,7 @@ class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
         # This mimics BaseCommand.run_from_argv():
         options = dict(form.cleaned_data)
         # "Move positional args out of options to mimic legacy optparse"
-        args = options.pop('args', ())
+        args = options.pop("args", ())
         stdout = io.StringIO()
         stderr = io.StringIO()
         error = None
@@ -123,19 +117,19 @@ class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
         with redirect_stdout(stdout), redirect_stderr(stderr):
             options.update(
                 {
-                    'traceback': True,
-                    'no_color': True,
-                    'force_color': False,
-                    'stdout': stdout,
-                    'stderr': stderr,
-                }
+                    "traceback": True,
+                    "no_color": True,
+                    "force_color": False,
+                    "stdout": stdout,
+                    "stderr": stderr,
+                },
             )
             cmd = co.get_command_instance()
             try:
                 cmd._managerie_request = self.request
                 cmd.execute(*args, **options)
             except SystemExit as se:  # We don't want any stray sys.exit()s to quit the app server
-                stderr.write(f'<exit: {se}>')
+                stderr.write(f"<exit: {se}>")
             except Exception as exc:
                 error = exc
                 error_tb = traceback.format_exc()
