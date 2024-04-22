@@ -19,11 +19,11 @@ FIELD_CLASS_MAP: Mapping[Any, Type[forms.Field]] = {
 
 class ArgumentParserForm(forms.Form):
     IGNORED_DESTS = {
-        'force_color',
-        'no_color',
-        'pythonpath',
-        'settings',
-        'traceback',
+        "force_color",
+        "no_color",
+        "pythonpath",
+        "settings",
+        "traceback",
     }
 
     def __init__(self, *, parser: argparse.ArgumentParser, **kwargs) -> None:
@@ -40,7 +40,7 @@ class ArgumentParserForm(forms.Form):
         field_cls: Optional[Type[forms.Field]] = None
         field_kwargs = dict(
             initial=action.default,
-            label=action.dest.replace('_', ' ').title(),
+            label=action.dest.replace("_", " ").title(),
             help_text=action.help,
             required=action.required,
         )
@@ -48,7 +48,7 @@ class ArgumentParserForm(forms.Form):
             field_cls = forms.BooleanField
         elif isinstance(action, argparse._StoreAction):
             if action.type not in FIELD_CLASS_MAP:
-                warnings.warn(f'No specific field class for type {action.type!r}')
+                warnings.warn(f"No specific field class for type {action.type!r}")
             field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
         if field_cls:
             self.fields[action.dest] = field_cls(**field_kwargs)
