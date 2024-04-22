@@ -7,11 +7,11 @@ repos:
           - --fix
       - id: ruff-format
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.2
+    rev: v2.2.6
     hooks:
       - id: codespell
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.991
+    rev: v1.9.0
     hooks:
       - id: mypy
         args:
@@ -20,7 +20,7 @@ repos:
           - django-stubs
           - pytest
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
