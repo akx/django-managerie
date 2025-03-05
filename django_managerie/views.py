@@ -1,10 +1,12 @@
 import io
+import sys
 import time
 import traceback
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from itertools import chain
-from typing import Any, Dict, Iterable, Optional
+from typing import Any, BinaryIO, Dict, Iterable, Optional
 
+from django import forms
 from django.apps import apps
 from django.apps.config import AppConfig
 from django.contrib.auth.mixins import AccessMixin
@@ -14,6 +16,17 @@ from django.views.generic import FormView, TemplateView
 from django_managerie.commands import ManagementCommand
 from django_managerie.forms import ArgumentParserForm
 from django_managerie.managerie import Managerie
+
+
+@contextmanager
+def redirect_stdin_binary(input_bin_stream: BinaryIO):
+    old_stdin = sys.stdin
+    try:
+        sys.stdin = io.TextIOWrapper(input_bin_stream, encoding="UTF-8")
+        assert sys.stdin.buffer is input_bin_stream
+        yield
+    finally:
+        sys.stdin = old_stdin
 
 
 class ManagerieBaseMixin:
@@ -90,7 +103,19 @@ class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
     def get_form(self, form_class=None) -> ArgumentParserForm:
         cmd = self.get_command_object().get_command_instance()
         parser = cmd.create_parser("django", self.command_name)
-        return ArgumentParserForm(parser=parser, **self.get_form_kwargs())
+        form = ArgumentParserForm(parser=parser, **self.get_form_kwargs())
+        if getattr(cmd, "managerie_accepts_stdin", False):
+            form.fields["_managerie_stdin_file"] = forms.FileField(
+                label="Input file",
+                required=False,
+            )
+            form.fields["_managerie_stdin_content"] = forms.CharField(
+                label="Input text",
+                widget=forms.Textarea,
+                help_text="Used only if input file is not set",
+                required=False,
+            )
+        return form
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -108,13 +133,22 @@ class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
         options = dict(form.cleaned_data)
         # "Move positional args out of options to mimic legacy optparse"
         args = options.pop("args", ())
+
+        # Handle input
+        if stdin_file := form.cleaned_data.pop("_managerie_stdin_file", None):
+            stdin_binary = stdin_file.file
+        elif stdin_content := form.cleaned_data.pop("_managerie_stdin_content", None):
+            stdin_binary = io.BytesIO(stdin_content.encode("UTF-8"))
+        else:
+            stdin_binary = io.BytesIO()
+
         stdout = io.StringIO()
         stderr = io.StringIO()
         error = None
         error_tb = None
         t0 = time.time()
         co = self.get_command_object()
-        with redirect_stdout(stdout), redirect_stderr(stderr):
+        with redirect_stdin_binary(stdin_binary), redirect_stdout(stdout), redirect_stderr(stderr):
             options.update(
                 {
                     "traceback": True,

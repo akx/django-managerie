@@ -1,24 +1,25 @@
 [![pypi](https://img.shields.io/pypi/v/django-managerie.svg)](https://pypi.python.org/pypi/django-managerie/)
 
-django-managerie
-================
+# django-managerie
 
-:lightbulb: Expose Django management commands as forms in the admin
+:lightbulb: Expose Django management commands as forms in the admin, like so:
 
-Requirements
-------------
+![Screenshot](./screenshot.png)
+
+## Requirements
 
 - Django 4.2+ (this project tracks Django's end-of-life policy)
 - Python 3.10+
 
-Installation
-------------
+## Installation
 
 Install the package as you would any Python package, then add `django_managerie` to your `INSTALLED_APPS`.
 
 ### Automatic patching
 
-This is the easiest way to get up and running. You can have Managerie patch the admin site's dashboard view to include pseudo-models with the name "Commands" for all apps where management commands are available, and while it's at it, it'll also include URLs of its own.
+This is the easiest way to get up and running.
+You can have Managerie patch the admin site's dashboard view to include pseudo-models with the name "Commands"
+for all apps where management commands are available, and while it's at it, it'll also include URLs of its own.
 
 Hook up Managerie to your admin site (e.g. in `urls.py`, where you have `admin.autodiscover()`), like so:
 
@@ -32,7 +33,8 @@ managerie.patch()
 
 ### No patching
 
-This is likely safer (in the presence of slightly less tolerant 3rd party apps that mangle the admin, for instance), but you can't enjoy the luxury of the Commands buttons in the admin dashboard.
+This is likely safer (in the presence of slightly less tolerant 3rd party apps that mangle the admin, for instance),
+but you can't enjoy the luxury of the Commands buttons in the admin dashboard.
 
 ```python
 from django.contrib import admin
@@ -48,13 +50,11 @@ urlpatterns = [
 ]
 ```
 
-
-Usage
------
+## Usage
 
 If you allowed Managerie to patch your admin, superusers can now see `Commands` "objects" in the admin dashboard.
-If you didn't patch the admin, you can access a list of all commands through `/admin/managerie/` (or wherever your
-admin is mounted).
+If you didn't patch the admin, you can access a list of all commands through `/admin/managerie/`
+(or wherever your admin is mounted).
 
 If you click through to a command, you'll see the arguments of the command laid out as a form.
 Fill the form, then hit "Execute Command", and you're done! :sparkles:
@@ -64,8 +64,17 @@ Fill the form, then hit "Execute Command", and you're done! :sparkles:
 Managerie sets `_managerie_request` on the command instance to the current Django request.
 You can use it to access the request, for instance, to get the current user.
 
-TODO
-----
+### Accessing standard input
 
-* More `argparse` action support
-* Multiple-argument support (`nargs`)
+By default, Managerie will patch `sys.stdin` to be an empty stream.
+If you need to read from standard input (e.g. long input),
+set the `managerie_accepts_stdin` attribute on your command class to `True`.
+
+This will cause Managerie to add a text-area to the form, which will be passed to the command as standard input.
+
+Note that `sys.stdin.buffer` (binary mode) is not supported.
+
+## TODO
+
+- More `argparse` action support
+- Multiple-argument support (`nargs`)
