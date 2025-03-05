@@ -1,3 +1,4 @@
+import io
 import json
 from html import unescape
 
@@ -38,6 +39,35 @@ def test_mg_test_command(admin_client, admin_user):
     assert data["string_option"] == string
     assert admin_user.username
     assert data["username"] == admin_user.username
+
+
+@pytest.mark.django_db
+def test_mg_stdin_command_text(admin_client):
+    url = "/admin/managerie/managerie_test_app/mg_stdin_command/"
+    content = admin_client.post(
+        url,
+        {
+            "operation": "uppercase",
+            "_managerie_stdin_content": "let us scream",
+        },
+    ).content.decode()
+    assert "Command executed successfully." in content
+    assert "LET US SCREAM" in content
+
+
+@pytest.mark.django_db
+def test_mg_stdin_command_file(admin_client):
+    url = "/admin/managerie/managerie_test_app/mg_stdin_command/"
+    content = admin_client.post(
+        url,
+        {
+            "operation": "count FF bytes",
+            # This can't be interpreted as UTF-8
+            "_managerie_stdin_file": io.BytesIO(b"\xff\x00\xff"),
+        },
+    ).content.decode()
+    assert "Command executed successfully." in content
+    assert "Found 2 FF bytes" in content
 
 
 @pytest.mark.django_db

@@ -62,6 +62,16 @@ Fill the form, then hit "Execute Command", and you're done! :sparkles:
 Managerie sets `_managerie_request` on the command instance to the current Django request.
 You can use it to access the request, for instance, to get the current user.
 
+### Accessing standard input
+
+By default, Managerie will patch `sys.stdin` to be an empty stream.
+If you need to read from standard input (e.g. long input),
+set the `managerie_accepts_stdin` attribute on your command class to `True`.
+
+This will cause Managerie to add a text-area to the form, which will be passed to the command as standard input.
+
+Note that `sys.stdin.buffer` (binary mode) is not supported.
+
 ## TODO
 
 - More `argparse` action support
