@@ -26,6 +26,12 @@ dependencies = [
     "Django>=3.2",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest-django~=4.10",
+    "pytest>=7.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/akx/django-managerie"
 
