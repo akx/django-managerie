@@ -3,6 +3,7 @@ import warnings
 from typing import Any, Mapping, Optional, Type
 
 from django import forms
+from django.contrib.admin.widgets import AdminRadioSelect
 
 BOOLEAN_ACTIONS = (
     argparse._StoreTrueAction,
@@ -49,7 +50,16 @@ class ArgumentParserForm(forms.Form):
         elif isinstance(action, argparse._StoreAction):
             if action.type not in FIELD_CLASS_MAP:
                 warnings.warn(f"No specific field class for type {action.type!r}")
-            field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
+            if action.choices:
+                field_cls = forms.ChoiceField
+                try:
+                    if len(action.choices) < 10:  # type: ignore[arg-type]
+                        field_kwargs["widget"] = AdminRadioSelect
+                except Exception:  # Might not be len-able, so don't crash
+                    pass
+                field_kwargs["choices"] = [(str(c), str(c)) for c in action.choices]
+            else:
+                field_cls = FIELD_CLASS_MAP.get(action.type, forms.Field)
         if field_cls:
             self.fields[action.dest] = field_cls(**field_kwargs)
 
