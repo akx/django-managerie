@@ -1,7 +1,7 @@
 import os
 import sys
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "managerie_tests.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "managerie_test_app.settings")
 
 
 def manage():
