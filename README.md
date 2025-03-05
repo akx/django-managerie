@@ -8,8 +8,8 @@ django-managerie
 Requirements
 ------------
 
-* Django 3.2+ (this project tracks Django's end-of-life policy)
-* Python 3.7+
+- Django 4.2+ (this project tracks Django's end-of-life policy)
+- Python 3.10+
 
 Installation
 ------------

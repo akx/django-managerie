@@ -106,6 +106,8 @@ class Managerie:
         request: HttpRequest,
         app_list: List[Dict],
     ):
+        # TODO: apps without models won't have their commands shown here since they
+        #       don't show up in the app_list. We should probably show them anyway.
         all_commands: Dict[str, CommandMap] = {
             app_config.label: commands for (app_config, commands) in self.get_commands(request).items()
         }

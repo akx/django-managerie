@@ -16,7 +16,7 @@ from django_managerie.forms import ArgumentParserForm
 from django_managerie.managerie import Managerie
 
 
-class MenagerieBaseMixin:
+class ManagerieBaseMixin:
     managerie: Optional[Managerie] = None
     kwargs: Dict[str, Any]
     _app: Optional[AppConfig]
@@ -43,7 +43,7 @@ class StaffRequiredMixin(AccessMixin):
         return super().dispatch(request, *args, **kwargs)
 
 
-class ManagerieListView(MenagerieBaseMixin, StaffRequiredMixin, TemplateView):
+class ManagerieListView(ManagerieBaseMixin, StaffRequiredMixin, TemplateView):
     template_name = "django_managerie/admin/list.html"
 
     def get_context_data(self, **kwargs) -> Dict[str, Any]:
@@ -66,7 +66,7 @@ class ManagerieListView(MenagerieBaseMixin, StaffRequiredMixin, TemplateView):
         return context
 
 
-class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
+class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
     template_name = "django_managerie/admin/command.html"
 
     @property
@@ -84,7 +84,7 @@ class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
             )[self.command_name]
         except KeyError:
             raise Http404(
-                f"Command {self.command_name} not found in {app.label} " f"(or you don't have permission to run it)",
+                f"Command {self.command_name} not found in {app.label} (or you don't have permission to run it)",
             )
 
     def get_form(self, form_class=None) -> ArgumentParserForm:

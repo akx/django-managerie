@@ -1,5 +1,6 @@
 *.egg*
 *.py[cod]
+*.sqlite3
 .*cache
 .coverage
 .tox
