@@ -84,7 +84,7 @@ class ManagerieCommandView(MenagerieBaseMixin, StaffRequiredMixin, FormView):
             )[self.command_name]
         except KeyError:
             raise Http404(
-                f"Command {self.command_name} not found in {app.label} " f"(or you don't have permission to run it)",
+                f"Command {self.command_name} not found in {app.label} (or you don't have permission to run it)",
             )
 
     def get_form(self, form_class=None) -> ArgumentParserForm:
