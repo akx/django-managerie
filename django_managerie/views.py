@@ -125,6 +125,7 @@ class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
             command=command,
             command_help=command.get_command_instance().help,
             title=command.full_title,
+            has_file_field=context["form"].is_multipart(),
         )
         return context
 
