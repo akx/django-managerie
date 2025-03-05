@@ -16,7 +16,7 @@
 {% block content %}
     <div id="content-main">
         <blockquote>{{ command_help }}</blockquote>
-        <form action="" method="post">
+        <form {% if has_file_field %}enctype="multipart/form-data" {% endif %}action="" method="post">
             {% csrf_token %}
             <table>
                 {{ form.as_table }}

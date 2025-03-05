@@ -24,7 +24,9 @@ def test_managerie(admin_client):
 @pytest.mark.django_db
 def test_mg_test_command(admin_client, admin_user):
     url = "/admin/managerie/managerie_test_app/mg_test_command/"
-    assert "wololo" in admin_client.get(url).content.decode()
+    resp = admin_client.get(url).content.decode()
+    assert "wololo" in resp
+    assert "multipart/form-data" not in resp
     string = get_random_string(42)
     content = admin_client.post(
         url,
@@ -58,6 +60,7 @@ def test_mg_stdin_command_text(admin_client):
 @pytest.mark.django_db
 def test_mg_stdin_command_file(admin_client):
     url = "/admin/managerie/managerie_test_app/mg_stdin_command/"
+    assert "multipart/form-data" in admin_client.get(url).content.decode()
     content = admin_client.post(
         url,
         {
