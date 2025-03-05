@@ -2,7 +2,9 @@
 
 # django-managerie
 
-:lightbulb: Expose Django management commands as forms in the admin
+:lightbulb: Expose Django management commands as forms in the admin, like so:
+
+![Screenshot](./screenshot.png)
 
 ## Requirements
 
