@@ -2,9 +2,10 @@ import io
 import sys
 import time
 import traceback
+from collections.abc import Iterable
 from contextlib import contextmanager, redirect_stderr, redirect_stdout
 from itertools import chain
-from typing import Any, BinaryIO, Dict, Iterable, Optional
+from typing import Any, BinaryIO
 
 from django import forms
 from django.apps import apps
@@ -30,11 +31,11 @@ def redirect_stdin_binary(input_bin_stream: BinaryIO):
 
 
 class ManagerieBaseMixin:
-    managerie: Optional[Managerie] = None
-    kwargs: Dict[str, Any]
-    _app: Optional[AppConfig]
+    managerie: Managerie | None = None
+    kwargs: dict[str, Any]
+    _app: AppConfig | None
 
-    def get_app(self) -> Optional[AppConfig]:
+    def get_app(self) -> AppConfig | None:
         if hasattr(self, "_app"):
             return self._app
         if "app_label" in self.kwargs:
@@ -59,7 +60,7 @@ class StaffRequiredMixin(AccessMixin):
 class ManagerieListView(ManagerieBaseMixin, StaffRequiredMixin, TemplateView):
     template_name = "django_managerie/admin/list.html"
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context["app"] = app = self.get_app()
         context["title"] = f"{app.verbose_name if app else 'All Apps'} – Commands"
@@ -117,7 +118,7 @@ class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
             )
         return form
 
-    def get_context_data(self, **kwargs) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         command = self.get_command_object()
         context.update(
@@ -165,7 +166,7 @@ class ManagerieCommandView(ManagerieBaseMixin, StaffRequiredMixin, FormView):
                 cmd.execute(*args, **options)
             except SystemExit as se:  # We don't want any stray sys.exit()s to quit the app server
                 stderr.write(f"<exit: {se}>")
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 error = exc
                 error_tb = traceback.format_exc()
         context = self.get_context_data(

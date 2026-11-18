@@ -1,5 +1,4 @@
 from functools import wraps
-from typing import Dict, List
 
 from django.apps.config import AppConfig
 from django.contrib.admin.sites import AdminSite
@@ -19,7 +18,7 @@ def user_is_superuser(request: HttpRequest) -> bool:
 
 
 class Managerie:
-    ignored_app_names = {
+    ignored_app_names = {  # noqa: RUF012
         "django.core",
         "django.contrib.staticfiles",
     }
@@ -74,15 +73,13 @@ class Managerie:
         """
         if command.full_name in COMMAND_BLOCKLIST:
             return False
-        if getattr(command.get_command_class(), "disable_managerie", False):
-            return False
-        return True
+        return not getattr(command.get_command_class(), "disable_managerie", False)
 
     def get_commands(
         self,
         request: HttpRequest,
-    ) -> Dict[AppConfig, CommandMap]:
-        command_map: Dict[AppConfig, CommandMap] = {}
+    ) -> dict[AppConfig, CommandMap]:
+        command_map: dict[AppConfig, CommandMap] = {}
         for app_config, commands in get_commands().items():
             command_map[app_config] = {
                 command_name: command
@@ -104,11 +101,11 @@ class Managerie:
     def _augment_app_list(
         self,
         request: HttpRequest,
-        app_list: List[Dict],
+        app_list: list[dict],
     ):
         # TODO: apps without models won't have their commands shown here since they
         #       don't show up in the app_list. We should probably show them anyway.
-        all_commands: Dict[str, CommandMap] = {
+        all_commands: dict[str, CommandMap] = {
             app_config.label: commands for (app_config, commands) in self.get_commands(request).items()
         }
         for app in app_list:
@@ -127,7 +124,7 @@ class Managerie:
             "object_name": "_ManagerieCommands_",
         }
 
-    def _get_urls(self) -> List[URLPattern]:
+    def _get_urls(self) -> list[URLPattern]:
         from django_managerie.views import ManagerieCommandView, ManagerieListView
 
         return [

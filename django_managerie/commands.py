@@ -1,6 +1,6 @@
 import os
 from collections import OrderedDict, defaultdict
-from functools import lru_cache
+from functools import cache
 from importlib import import_module
 
 from django.apps import apps
@@ -38,7 +38,7 @@ class ManagementCommand:
         return f"{self.app_config.label}.{self.name}"
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_commands():
     # Logic filched from django.core.management.get_commands(), but expressed in a saner way.
     apps_to_commands = defaultdict(OrderedDict)
