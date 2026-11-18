@@ -8,28 +8,32 @@ dynamic = ["version"]
 description = "Expose Django management commands in the admin"
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [
     { name = "Aarni Koskela", email = "akx@iki.fi" },
 ]
 classifiers = [
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
 ]
 dependencies = [
-    "Django>=4.2",
+    "Django>=5.2",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest-django~=4.10",
-    "pytest>=7.2",
+    "pytest-django>=4.10",
+    "pytest>=8",
 ]
 
 [project.urls]
@@ -63,25 +67,34 @@ extend-select = [
 max-complexity = 10
 
 [tool.tox]
-legacy_tox_ini = """
-[tox]
-isolated_build = true
-envlist =
-    py31{0,1}-django{42}
-    py31{2,3}-django{50,51}
+requires = ["tox>=4.22"]
+env_list = [
+    "py311-django52",
+    "py312-django52",
+    "py312-django60",
+    "py312-django61",
+    "py313-django52",
+    "py313-django60",
+    "py313-django61",
+    "py314-django52",
+    "py314-django60",
+    "py314-django61",
+    "py315-django61",
+]
 
-[testenv]
-commands = py.test {posargs}
-extras = dev
-deps =
-    django42: Django~=4.2.0
-    django50: Django~=5.0.0
-    django51: Django~=5.1.0
+[tool.tox.env_run_base]
+runner = "uv-venv-runner"
+dependency_groups = ["dev"]
+deps = [
+    { replace = "if", extend = true, condition = "factor.django52", then = ["Django~=5.2.0"] },
+    { replace = "if", extend = true, condition = "factor.django60", then = ["Django~=6.0.0"] },
+    { replace = "if", extend = true, condition = "factor.django61", then = ["Django~=6.1.0"] },
+]
+commands = [["pytest", { replace = "posargs", extend = true }]]
 
-[gh]
-python =
-    3.10 = py310
-    3.11 = py311
-    3.12 = py312
-    3.13 = py313
-"""
+[tool.tox.gh.python]
+"3.11" = ["py311"]
+"3.12" = ["py312"]
+"3.13" = ["py313"]
+"3.14" = ["py314"]
+"3.15" = ["py315"]
