@@ -15,6 +15,7 @@ BOOLEAN_ACTIONS = (
 FIELD_CLASS_MAP: Mapping[Any, type[forms.Field]] = {
     float: forms.FloatField,
     int: forms.IntegerField,
+    str: forms.CharField,
     None: forms.CharField,
 }
 
@@ -52,7 +53,9 @@ class ArgumentParserForm(forms.Form):
             if action.type not in FIELD_CLASS_MAP:
                 warnings.warn(f"No specific field class for type {action.type!r}")
             if action.choices:
-                field_cls = forms.ChoiceField
+                # Choices are rendered as strings; coerce the selected one back to the argument's type
+                field_cls = forms.TypedChoiceField
+                field_kwargs["coerce"] = action.type or str
                 try:
                     if len(action.choices) < 10:  # type: ignore[arg-type]
                         field_kwargs["widget"] = AdminRadioSelect
