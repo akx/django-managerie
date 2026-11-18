@@ -1,9 +1,15 @@
+import argparse
 import io
 import json
+import re
+import warnings
 from html import unescape
 
 import pytest
+from django import forms
 from django.utils.crypto import get_random_string
+
+from django_managerie.forms import ArgumentParserForm
 
 
 @pytest.mark.django_db
@@ -107,3 +113,25 @@ def test_outsider_no_access(client):
         url = f"/admin/managerie/managerie_test_app/{command}/"
         resp = client.get(url)
         assert resp.status_code == 302  # Redirect to login
+
+
+@pytest.mark.django_db
+def test_typed_choices_are_coerced(admin_client):
+    url = "/admin/managerie/managerie_test_app/mg_typed_choices_command/"
+    resp = admin_client.get(url).content.decode()
+    # Integer defaults should still select the matching (string-valued) radio option
+    assert re.search(r'<input[^>]+name="level"[^>]+value="2"[^>]+checked', resp)
+    assert re.search(r'<input[^>]+name="verbosity"[^>]+value="1"[^>]+checked', resp)
+    content = admin_client.post(url, {"verbosity": "2", "level": "3"}).content.decode()
+    assert "Command executed successfully." in content
+    data = json.loads(unescape(content[content.index("XXX:") + 4 : content.index(":XXX")]))
+    assert data == {"level": [3, "int"], "verbosity": [2, "int"]}
+
+
+def test_str_type_maps_to_charfield():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--name", type=str)
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        form = ArgumentParserForm(parser=parser)
+    assert isinstance(form.fields["name"], forms.CharField)
