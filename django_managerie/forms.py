@@ -1,6 +1,7 @@
 import argparse
 import warnings
-from typing import Any, Mapping, Optional, Type
+from collections.abc import Mapping
+from typing import Any
 
 from django import forms
 from django.contrib.admin.widgets import AdminRadioSelect
@@ -11,7 +12,7 @@ BOOLEAN_ACTIONS = (
     argparse._StoreConstAction,
 )
 
-FIELD_CLASS_MAP: Mapping[Any, Type[forms.Field]] = {
+FIELD_CLASS_MAP: Mapping[Any, type[forms.Field]] = {
     float: forms.FloatField,
     int: forms.IntegerField,
     None: forms.CharField,
@@ -19,7 +20,7 @@ FIELD_CLASS_MAP: Mapping[Any, Type[forms.Field]] = {
 
 
 class ArgumentParserForm(forms.Form):
-    IGNORED_DESTS = {
+    IGNORED_DESTS = {  # noqa: RUF012
         "force_color",
         "no_color",
         "pythonpath",
@@ -38,13 +39,13 @@ class ArgumentParserForm(forms.Form):
             return
         if action.dest in self.IGNORED_DESTS:
             return
-        field_cls: Optional[Type[forms.Field]] = None
-        field_kwargs = dict(
-            initial=action.default,
-            label=action.dest.replace("_", " ").title(),
-            help_text=action.help,
-            required=action.required,
-        )
+        field_cls: type[forms.Field] | None = None
+        field_kwargs = {
+            "initial": action.default,
+            "label": action.dest.replace("_", " ").title(),
+            "help_text": action.help,
+            "required": action.required,
+        }
         if isinstance(action, BOOLEAN_ACTIONS):
             field_cls = forms.BooleanField
         elif isinstance(action, argparse._StoreAction):
@@ -55,7 +56,7 @@ class ArgumentParserForm(forms.Form):
                 try:
                     if len(action.choices) < 10:  # type: ignore[arg-type]
                         field_kwargs["widget"] = AdminRadioSelect
-                except Exception:  # Might not be len-able, so don't crash
+                except Exception:  # Might not be len-able, so don't crash  # noqa: BLE001, S110
                     pass
                 field_kwargs["choices"] = [(str(c), str(c)) for c in action.choices]
             else:

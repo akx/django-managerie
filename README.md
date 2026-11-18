@@ -26,6 +26,7 @@ Hook up Managerie to your admin site (e.g. in `urls.py`, where you have `admin.a
 ```python
 from django.contrib import admin
 from django_managerie import Managerie
+
 # ...
 managerie = Managerie(admin_site=admin.site)
 managerie.patch()
@@ -40,13 +41,14 @@ but you can't enjoy the luxury of the Commands buttons in the admin dashboard.
 from django.contrib import admin
 from django.conf.urls import include, url
 from django_managerie import Managerie
+
 # ...
 managerie = Managerie(admin_site=admin.site)
 # ...
 urlpatterns = [
     # ...
     # ... url(r'^admin/', include(admin.site.urls)), ...
-    url(r'^admin/', include(managerie.urls)),  # Add this!
+    url(r"^admin/", include(managerie.urls)),  # Add this!
 ]
 ```
 

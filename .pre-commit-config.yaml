@@ -1,17 +1,17 @@
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.9
+    rev: ef6cf06c079dd6b299dfc720b0f14400c9d168e1  # frozen: v0.17.5
     hooks:
-      - id: ruff
+      - id: ruff-check
         args:
           - --fix
       - id: ruff-format
   - repo: https://github.com/crate-ci/typos
-    rev: v1.30.1
+    rev: 276087d9a4f06398b3e04825487805e2d7375888  # frozen: v1.52.2
     hooks:
       - id: typos
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: ad26ebfa797fcb9b8f83275937c1c1d6e126719c  # frozen: v2.4.1
     hooks:
       - id: mypy
         args:
@@ -20,7 +20,7 @@ repos:
           - django-stubs
           - pytest
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: debug-statements
       - id: end-of-file-fixer
